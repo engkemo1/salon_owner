@@ -95,38 +95,14 @@ class AuthenticationPage extends GetView<AuthController> {
                     child: Container(
                       child: Padding(
                         padding: const EdgeInsets.only(
-                            left: 40.0, right: 40.0, top: 60.0),
+                            left: 40.0, right: 40.0, ),
                         child: SingleChildScrollView(
                           child: Form(
                             key:_formKey,
                               child:Column(
                                 children: [
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "SalonId",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.grey),
-                                      ),
-                                      TextFormWidget(
-                                          validator: (val) {
-                                            validateEmail(val);
-                                          },
 
-                                          controller: controller.salonId,
-                                          textInputType: TextInputType.text,
-                                          obscureText: false),
-                                    ],
-                                  ),
 
-                                  const SizedBox(
-                                    height: 30,
-                                  ),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -448,7 +424,7 @@ SizedBox(height: 20,),
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    "Confirom Password",
+                                    "Confirm Password",
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         color: Colors.grey),

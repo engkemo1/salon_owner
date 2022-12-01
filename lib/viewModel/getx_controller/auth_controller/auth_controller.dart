@@ -4,17 +4,22 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:get/get.dart';
-
+import 'package:salon_owner/view/pages/MainScreen1.dart';
+import 'package:salon_owner/view/pages/salon_register.dart';
 
 import '../../../model/user_model.dart';
 import '../../../view/component/indicator.dart';
+import '../../../view/pages/Mainscreen2.dart';
+import '../../../view/pages/auth/authentication.dart';
 import '../../../view/pages/auth/intro.dart';
 import '../../database_local/CacheHelper.dart';
 import '../../routes/app_pages.dart';
 
-class AuthController extends GetxController  with GetSingleTickerProviderStateMixin {
+class AuthController extends GetxController
+    with GetSingleTickerProviderStateMixin {
   static AuthController instance = Get.find();
   final TextEditingController emailLogin = TextEditingController();
   final TextEditingController passwordLogin = TextEditingController();
@@ -31,52 +36,22 @@ class AuthController extends GetxController  with GetSingleTickerProviderStateMi
 
   User get user => _user.value!;
   var isSignedIn = false.obs;
-File? imagFile;
-String? image;
-String?picUrl;
+  File? imagFile;
+  String? image;
+  String? picUrl;
   var selected = "Role type".obs;
-  void setSelected(String value){
+
+  void setSelected(String value) {
     selected.value = value;
   }
-@override
+
+  @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    tabController
-     = TabController(vsync: this, length: 2);
-
-
-}
-  @override
-  void onClose() {
-  email.dispose();
-  password.dispose();
-  phone.dispose();
-  salonId.dispose();
-  fullName.dispose();
-    tabController!.dispose();
-    super.onClose();
+    tabController = TabController(vsync: this, length: 2);
   }
 
-
-  @override
-  void onReady() {
-
-    super.onReady();
-    _user = Rx<User?>(_auth.currentUser);
-    _user.bindStream(_auth.authStateChanges());
-    ever(_user, _setInitialScreen);
-  }
-
-
-
-  _setInitialScreen(User? user) {
-    if (user==null) {
-      Get.offAllNamed(Routes.authentication);    }
-      else {
-        Get.offAllNamed(Routes.mainScreen);
-      }
-    }
 
 
 
@@ -84,19 +59,32 @@ String?picUrl;
     try {
       Indicator.showLoading();
 
-
       if (emailLogin.text.isNotEmpty && passwordLogin.text.isNotEmpty) {
         await _auth
-            .signInWithEmailAndPassword(email: emailLogin.text, password: passwordLogin.text)
+            .signInWithEmailAndPassword(
+                email: emailLogin.text, password: passwordLogin.text)
             .then((value) {
-              getUser(email: emailLogin.text);});
-        update();
-      CacheHelper.put(key: 'uid', value: user.uid);
-        email.clear();
-        password.clear();
+          FirebaseFirestore.instance
+              .collection('users').doc(user.uid)
+
+              .get()
+              .then((value) => {
+
+                      if (value.get('role')=='SalonOwner') {
+                        Get.offAll(MainScreen2())
+                      } else if (value.get('role')=='Specialist') {
+                        Get.offAll(MainScreen())
+                      } else {
+Get.snackbar('Hello sir', 'please enter correct email ')                      }
+
+                  });
+
+          getUser(email: emailLogin.text);
+          update();
+
+        });
 
         Indicator.closeLoading();
-
       } else {
         Indicator.closeLoading();
 
@@ -113,10 +101,8 @@ String?picUrl;
         e.toString(),
       );
     }
-
-
-
   }
+
   _saveUser(UserModel user) async {
     log("email: ${user.uid}");
 
@@ -128,7 +114,6 @@ String?picUrl;
     CacheHelper.put(key: 'role', value: user.role!);
     CacheHelper.put(key: 'image', value: user.imageUrl);
     CacheHelper.put(key: 'salonId', value: user.salonId);
-
   }
 
   Future<void> getUser({required String email}) async {
@@ -143,18 +128,16 @@ String?picUrl;
           uid: result.id,
           email: result.get('email'),
           name: result.get('name'),
-          phone: result.get('phone'), role:  result.get('role'),
-
-           imageUrl: result.get('imageUrl'), salonId: result.get('salonId'),
-
+          phone: result.get('phone'),
+          role: result.get('role'),
+          imageUrl: result.get('imageUrl'),
+          salonId: result.get('salonId'),
         );
-
 
         _saveUser(user);
       }
     });
   }
-
 
   void onCreateAccount() async {
     try {
@@ -164,17 +147,24 @@ String?picUrl;
       UserCredential cred = await _auth.createUserWithEmailAndPassword(
         email: email.text,
         password: password.text,
-      ) ;
-      Get.offAllNamed(Routes.salonRegister);
+      );
+      selected.contains('SalonOwner')
+          ? Get.offAll(SalonRegister())
+          : Get.offAll(MainScreen());
 
-update();
+      update();
+      print('dsaadsssdsda');
+      print(selected.value);
       // String downloadUrl = await _uploadToStorage(image);
       UserModel user1 = UserModel(
           name: fullName.text,
           email: email.text,
           phone: phone.text,
           uid: cred.user!.uid,
-         password: password.text, role: 'salonOwner', salonId: salonId.text, imageUrl: image);
+          password: password.text,
+          role: selected.value,
+          salonId: salonId.text,
+          imageUrl: image);
 
       await FirebaseFirestore.instance
           .collection('users')
@@ -183,11 +173,7 @@ update();
 
       _saveUser(user1);
 
-      emailLogin.clear();
-      passwordLogin.clear();
-      email.clear();phone.clear();confirmPassword.clear();
       Indicator.closeLoading();
-
     } catch (e) {
       Indicator.closeLoading();
 
@@ -198,25 +184,18 @@ update();
     }
   }
 
-
   void signout() async {
     Indicator.showLoading();
 
     try {
-
       await _auth.signOut().then((value) {
         isSignedIn.value = false;
         update();
 
-
-        CacheHelper.removeData(key: 'role');
-
-        CacheHelper.removeData(key: 'uid');
         Get.offAll(() => IntroPage());
       });
-
+      CacheHelper.clearData();
       Indicator.closeLoading();
-
     } catch (e) {
       Indicator.closeLoading();
 
@@ -226,51 +205,46 @@ update();
           colorText: Colors.blue);
     }
   }
- updateInformation()async{
-   await FirebaseFirestore.instance
-       .collection('users')
-       .doc(CacheHelper.get(key: 'uid'))
-       .update({
-     'password': password.text.isNotEmpty
-         ? password.text
-         : CacheHelper.get(key: 'password'),
-     'name': fullName.text.isNotEmpty
-         ? fullName.text
-         : CacheHelper.get(key: 'name'),
-     'email': email.text.isNotEmpty
-         ? email.text
-         : CacheHelper.get(key: 'email'),
-     'phone': phone.text.isNotEmpty
-         ? phone.text
-         : CacheHelper.get(key: 'phone'),
 
+  updateInformation() async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(CacheHelper.get(key: 'uid'))
+        .update({
+      'password': password.text.isNotEmpty
+          ? password.text
+          : CacheHelper.get(key: 'password'),
+      'name': fullName.text.isNotEmpty
+          ? fullName.text
+          : CacheHelper.get(key: 'name'),
+      'email':
+          email.text.isNotEmpty ? email.text : CacheHelper.get(key: 'email'),
+      'phone':
+          phone.text.isNotEmpty ? phone.text : CacheHelper.get(key: 'phone'),
+    }).then((value) {
+      CacheHelper.put(
+        key: 'name',
+        value: fullName.text.isNotEmpty
+            ? fullName.text
+            : CacheHelper.get(key: 'name'),
+      );
+      CacheHelper.put(
+          key: 'email',
+          value: email.text.isNotEmpty
+              ? email.text
+              : CacheHelper.get(key: 'email'));
+      CacheHelper.put(
+          key: 'phone',
+          value: phone.text.isNotEmpty
+              ? phone.text
+              : CacheHelper.get(key: 'phone'));
 
-   }).then((value) {
-     CacheHelper.put(
-       key: 'name',
-       value: fullName.text.isNotEmpty
-           ? fullName.text
-           : CacheHelper.get(key: 'name'),
-     );
-     CacheHelper.put(
-         key: 'email',
-         value: email.text.isNotEmpty
-             ? email.text
-             : CacheHelper.get(key: 'email'));
-     CacheHelper.put(
-         key: 'phone', value:  phone.text.isNotEmpty
-         ? phone.text
-         : CacheHelper.get(key: 'phone'));
-
-     CacheHelper.put(
-       key: 'password',
-       value: password.text.isNotEmpty
-           ? password.text
-           : CacheHelper.get(key: 'password'),
-     );
-
-
-   });
-
-}
+      CacheHelper.put(
+        key: 'password',
+        value: password.text.isNotEmpty
+            ? password.text
+            : CacheHelper.get(key: 'password'),
+      );
+    });
+  }
 }

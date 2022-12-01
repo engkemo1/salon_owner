@@ -12,6 +12,8 @@ abstract class Routes {
   static const salonOwner = _Paths.salonOwner;
   static const bookPage = _Paths.bookPage;
   static const mainScreen = _Paths.mainScreen;
+  static const mainScreen2 = _Paths.mainScreen2;
+
   static const salonSpecialist = _Paths.salonSpecialist;
 
 }
@@ -21,6 +23,8 @@ abstract class _Paths {
   static const salonOwner = '/salonOwner';
   static const bookPage = '/bookPage';
   static const mainScreen = '/mainScreen';
+  static const mainScreen2 = '/mainScreen2';
+
   static const salonSpecialist = '/salonSpecialist';
 
   static const salonRegister = '/salonRegister';

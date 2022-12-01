@@ -28,6 +28,7 @@ class UserModel {
         "email": email,
         "uid": uid,
         'phone': phone,
+    'salonId':salonId,
         'role': role,
     'imageUrl': imageUrl
 

@@ -8,16 +8,16 @@ import '../../edit_salon/edit_salon.dart';
 import 'Edit Information.dart';
 
 
-class UserProfileScreen extends StatelessWidget {
+class UserProfileScreen2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-appBar: AppBar(
-  backgroundColor: Colors.black,
-  title: const Text('Profile'),
-  centerTitle: true,
-    leading: SizedBox()     ) ,body:  SafeArea(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text('Profile'),
+        centerTitle: true,leading: SizedBox(),),
+      body:  SafeArea(
         child: Container(
           height: MediaQuery.of(context).size.height,
           decoration: const BoxDecoration(
@@ -51,18 +51,18 @@ appBar: AppBar(
                   child: Text(
                     CacheHelper.get(key: 'name') ?? '',
                     style: const TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white
                     ),
                   ),
                 ),
                 Text(
                   CacheHelper.get(key: 'email') ?? '',
                   style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey
                   ),
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height*0.07,),
@@ -80,11 +80,22 @@ appBar: AppBar(
                       ListTile(
                         trailing:const Icon(Icons.arrow_forward_ios,color: UIData.mainColor,),
                         leading: const Text(
-                        'Edit Information',
-                        style: TextStyle(fontSize: 19,color: Colors.white),
-                      ),
+                          'Edit Information',
+                          style: TextStyle(fontSize: 19,color: Colors.white),
+                        ),
                         onTap: () {
                           Get.to(EditInformation());
+                        },
+                      ),
+
+                      ListTile(
+                        trailing:const Icon(Icons.arrow_forward_ios,color: UIData.mainColor,),
+                        leading: const Text(
+                          'Edit Salon',
+                          style: TextStyle(fontSize: 19,color: Colors.white),
+                        ),
+                        onTap: () {
+                          Get.to(EditSalon());
                         },
                       ),
 

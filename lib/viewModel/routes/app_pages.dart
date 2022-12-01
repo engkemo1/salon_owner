@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../../salonSpecialist/salonSpecialist.dart';
-import '../../view/pages/MainScreen.dart';
+import '../../view/pages/MainScreen1.dart';
+import '../../view/pages/Mainscreen2.dart';
 import '../../view/pages/SalonOwner.dart';
 import '../../view/pages/auth/authentication.dart';
 import '../../view/pages/auth/intro.dart';
@@ -35,6 +36,10 @@ class AppPages {
     GetPage(
       name: _Paths.mainScreen,
       page: () =>  MainScreen(),
+    ),
+    GetPage(
+      name: _Paths.mainScreen2,
+      page: () =>  MainScreen2(),
     ),
     GetPage(
       name: _Paths.salonSpecialist,
